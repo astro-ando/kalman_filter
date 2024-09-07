@@ -94,7 +94,7 @@ def analyse_parabola() -> None:
     # J(x) = residual^T * residual = (y - A*x)^T * (y - A*x) = (y^T - x^T * A^T) * (y - A*x)
     # Solve: (A^T * A)^-1 * A^T*y = x
 
-    A = np.concatenate([t.reshape([num_measurements, 1])**2, np.ones([num_measurements, 1])], axis=1)
+    A = np.concatenate([t.reshape([num_measurements, 1]) ** 2, np.ones([num_measurements, 1])], axis=1)
 
     x = left_psuedo_inverse(A) @ y_noise
     y_filtered = A @ x
