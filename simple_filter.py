@@ -15,8 +15,8 @@ def left_psuedo_inverse(A: np.array):
 
 
 def analyse_line() -> None:
-    gradient = 3
-    y_offset = 4
+    gradient = -3
+    y_offset = 5
 
     num_measurements = 20
 
@@ -53,14 +53,29 @@ def analyse_line() -> None:
 
     A = np.concatenate([t.reshape([num_measurements, 1]), np.ones([num_measurements, 1])], axis=1)
 
-    x = left_psuedo_inverse(A) @ y_noise
-    y_filtered = A @ x
+    theta = left_psuedo_inverse(A) @ y_noise
+    m_guess = theta[0]
+    c_guess = theta[1]
+    y_filtered = A @ theta
+
+    def residuals(params, t_value, y_value):
+        m, c = params
+        return y_value - (m*t_value + c)
+
+    result = least_squares(residuals, [m_guess, c_guess], args=(t.reshape(num_measurements), y_noise.reshape(num_measurements)))
+    m_refined, c_refined = result.x
+    print(f"Initial guess line: gradient={m_guess} y-intercept={c_guess}")
+    print(f"Refined line: gradient={m_refined} y-intercept={c_refined}")
+
+    # Generate a plot of the optimised parameters
+    y_refined = m_refined * t + c_refined
 
     plt.figure()
     plt.title("Filtered")
     plt.plot(t, y, color="black")
     plt.scatter(t, y_noise, color="blue", marker="x")
     plt.plot(t, y_filtered, color="red", linestyle="--")
+    plt.plot(t, y_refined, color="green", linestyle="--")
     plt.show()
 
 
@@ -178,9 +193,9 @@ def analyse_semicircle() -> None:
 
 
 def main() -> None:
-    # analyse_line()
+    analyse_line()
     # analyse_parabola()
-    analyse_semicircle()
+    # analyse_semicircle()
 
 
 if __name__ == "__main__":
